@@ -1,4 +1,4 @@
-<?php 
+<?php
 if( ! defined('ABSPATH') ) die();
 
 Abstract Class MrmFeature {
@@ -39,7 +39,15 @@ Abstract Class MrmFeature {
 			if( ! $post && $postId === null) return;
 			$postId = $postId ?: $post->ID;
 			$features = get_post_meta( $postId, 'mrm_fl_features', true );
-			$this->settings = $features[$this->slug];
+
+			if( isset($features[$this->slug]) )
+			{
+				$this->settings = $features[$this->slug];
+			}
+			else
+			{
+				$this->settings = [];
+			}
 		}
 		return isset( $this->settings[$slug] )? $this->settings[$slug] : '';
 	}

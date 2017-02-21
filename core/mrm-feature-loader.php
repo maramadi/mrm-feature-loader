@@ -87,10 +87,24 @@ Class MrmFeatureLoader {
 		/* Get the meta value of the custom field key. */
 		$features = get_post_meta( $post->ID, $meta_key, true );
 
-		foreach ($features as $featureSlug => $featureData)
-		{
-			self::getInstance()->registeredFeatures[$featureSlug]->run();
+		if($features){
+
+			$activatedFeatures = self::getInstance()->getActivatedFeatures();
+			//$availableFeatures = self::getAvailableFeatures();
+
+			foreach ($features as $featureSlug => $featureData)
+			{
+				if( in_array($featureSlug, $activatedFeatures) )
+				{
+					// Get the feature object the featureSlug
+					$feature = self::getInstance()->registeredFeatures[$featureSlug];
+					// Fire run method of feature
+					$feature->run();
+				}
+			}
+
 		}
+
 	}
 
 	/**
@@ -113,11 +127,15 @@ Class MrmFeatureLoader {
 	public static function createMetaBox()
 	{
 		global $post;
-		if( in_array( $post->post_type, self::getActivatedPostTypes() ) ){
+		if(
+			in_array( $post->post_type, self::getInstance()->getActivatedPostTypes() ) &&
+			count( self::getInstance()->getActivatedFeatures() ) > 0
+		)
+		{
 			add_meta_box(
-				'mrm_fl_meta_box', 
+				'mrm_fl_meta_box',
 				'Feature Loader',
-				array(self::getInstance(),'renderMetaBox'),
+				array('MrmFeatureLoader','renderMetaBox'),
 				$post->post_type,
 				'advanced'
 			);
@@ -127,18 +145,15 @@ Class MrmFeatureLoader {
 	/**
 	 * Render the metabox
 	 */
-	static function renderMetaBox($object, $box)
+	public static function renderMetaBox($object, $box)
 	{
-
-		foreach (self::getInstance()->registeredFeatures as $slug => $feature) :
-		//foreach (self::getInstance()->registeredSettings as $slug => $featureData):?>
+		foreach (self::getInstance()->getRegisteredFeatures() as $slug => $feature) :?>
 
 			<div class="mrm-features-metabox">
 				<?php wp_nonce_field( basename( __FILE__ ), 'mrm_fl_metabox_nonce' ); ?>
 				<?php if(self::canShow($slug, $object)): ?>
 					<?php echo MrmFeatureSettingsRenderer::render($feature, $object, $box) ?>
 				<?php endif; ?>
-
 			</div>
 
 		<?php endforeach;
@@ -182,15 +197,19 @@ Class MrmFeatureLoader {
 	 	}
 	}
 
-	public function loadActivatedFeatures()
+	public static function loadActivatedFeatures()
 	{
 
 		$activatedFeatures = self::getInstance()->getActivatedFeatures();
 		$avilableFeatures = self::getInstance()->getAvailableFeatures();
-		
+
 		foreach ($activatedFeatures as $feature) {
 
-			$featurePath = $avilableFeatures[$feature]['path'];	
+			if( isset($avilableFeatures[$feature]) &&
+					isset($avilableFeatures[$feature]['path'])
+			 )
+
+			$featurePath = $avilableFeatures[$feature]['path'];
 
 			if( file_exists($featurePath) )
 			{
@@ -201,7 +220,7 @@ Class MrmFeatureLoader {
 
 	}
 
-	public static function getAvailableFeatures()
+	public function getAvailableFeatures()
 	{
 		$instance = self::getInstance();
 		if( ! isset($instance->avilable_features) )
@@ -232,15 +251,34 @@ Class MrmFeatureLoader {
 		return $instance->avilable_features;
 	}
 
-	static function getActivatedFeatures()
+	/**
+	* Get features that are registered to show
+	* on this post type
+	*/
+	public function getRegisteredFeatures()
 	{
-		//@Todo Don't list deleted folders anymore
-		return self::getOption('mrm_fl_features');
+		$instance = self::getInstance();
+		if(isset($instance->registeredFeatures))
+		{
+			return $instance->registeredFeatures;
+		}
+		else
+		{
+			return [];//Empty array => no features
+		}
 	}
 
-	static function getActivatedPostTypes()
+	public function getActivatedFeatures()
 	{
-		return self::getOption('mrm_fl_post_types');
+		//@Todo Don't list deleted folders anymore
+		return self::getInstance()->getOption('mrm_fl_features')?:[];
+	}
+
+
+
+	public function getActivatedPostTypes()
+	{
+		return self::getInstance()->getOption('mrm_fl_post_types')?:[];
 	}
 
 	static function getOption($key)
@@ -255,14 +293,14 @@ Class MrmFeatureLoader {
 
 	static function isActive($feature)
 	{
-		$features = getActivatedFeatures();
+		$features = self::getInstance()->getActivatedFeatures();
 		return in_array($feature, $features);
 	}
 
 	static function canShow($feature, $post)
 	{
 
-		$activatedPostTypes =  MrmFeatureLoader::getActivatedPostTypes();
+		$activatedPostTypes =  MrmFeatureLoader::getInstance()->getActivatedPostTypes();
 
 		if( in_array($post->post_type, $activatedPostTypes ) )
 		{
@@ -302,7 +340,7 @@ Class MrmFeatureLoader {
 	 */
 	public function getData($storeKey = null)
 	{
-		
+
 		$instance = self::getInstance();
 
 		if(is_null($storeKey)){

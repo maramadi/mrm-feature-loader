@@ -8,8 +8,8 @@ Class MrmFeatureSettingsRenderer {
 		<h4>
 			<?php echo $feature->name ?>
 
-			<input type="checkbox" 
-			id="mrm-fl-<?php echo $feature->slug ?>-active" 
+			<input type="checkbox"
+			id="mrm-fl-<?php echo $feature->slug ?>-active"
 			name="mrm_fl_features[<?php echo $feature->slug?>][active]"
 			<?php echo $active ?>
 			>
@@ -17,6 +17,7 @@ Class MrmFeatureSettingsRenderer {
 		<h5><?php echo $feature->description ?></h5>
 		<?php
 		foreach ($feature->getSettings() as $fieldType => $settingsData):?>
+
 			<div class="mrm-feature <?php echo $feature->slug . '--class' ?>">
 				<?php $inputId = $feature->slug . '-' . $settingsData['slug'] ?>
 
@@ -24,12 +25,12 @@ Class MrmFeatureSettingsRenderer {
 
 					<label for="<?php echo $inputId ?>"><?php echo $settingsData['label'] ?></label>
 					<input
-						type="text" 
-						value="<?php $feature->getSetting($settingsData['slug']) ?>" 
+						type="text"
+						value="<?php echo $feature->getSetting($settingsData['slug']) ?>"
 						name="<?php echo $feature->getSettingsKey($settingsData['slug']) ?>"
 						id="<?php echo $inputId ?>"
 					>
-					
+
 				<?php endif; ?>
 			</div>
 		<?php endforeach;

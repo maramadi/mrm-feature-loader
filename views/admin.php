@@ -1,9 +1,9 @@
 <?php
 if( ! defined('ABSPATH') ) die();
 
-function mrm_add_admin_menu(  ) { 
+function mrm_add_admin_menu(  ) {
 
-	add_submenu_page( 
+	add_submenu_page(
 		'themes.php',
 		'Feature loader',
 		'Feature loader',
@@ -15,43 +15,43 @@ function mrm_add_admin_menu(  ) {
 }
 
 
-function mrm_fl_settings_init(  ) { 
+function mrm_fl_settings_init(  ) {
 
 	register_setting( 'mrm_fl_plugin_page', 'mrm_fl_settings' );
 
 	add_settings_section(
-		'mrm_pluginPage_section', 
-		__( 'Basic settings for feature loader', ' mrm-feature-loader' ), 
-		'mrm_fl_settings_section_callback', 
+		'mrm_pluginPage_section',
+		__( 'Basic settings for feature loader', ' mrm-feature-loader' ),
+		'mrm_fl_settings_section_callback',
 		'mrm_fl_plugin_page'
 	);
 
 	// Show where
-	add_settings_field( 
-		'mrm_fl_post_types', 
+	add_settings_field(
+		'mrm_fl_post_types',
 		__( 'Show on which post types', ' mrm-feature-loader' ),
-		'mrm_fl_post_types_render', 
-		'mrm_fl_plugin_page', 
-		'mrm_pluginPage_section' 
+		'mrm_fl_post_types_render',
+		'mrm_fl_plugin_page',
+		'mrm_pluginPage_section'
 	);
 
 	// Activate/deactivate features
-	add_settings_field( 
+	add_settings_field(
 		'mrm_fl_features',
 		__( 'Activate or deactivate featueres', ' mrm-feature-loader' ),
-		'mrm_fl_features_render', 
-		'mrm_fl_plugin_page', 
-		'mrm_pluginPage_section' 
+		'mrm_fl_features_render',
+		'mrm_fl_plugin_page',
+		'mrm_pluginPage_section'
 	);
 }
 
 
-function mrm_fl_post_types_render(  ) { 
+function mrm_fl_post_types_render(  ) {
 
 	$options = get_option( 'mrm_fl_settings' );
 	$post_types = MrmHelper::getAvailablePostTypes();
 	?>
-	
+
 	<select multiple="true" name="mrm_fl_settings[mrm_fl_post_types][]" style="width:200px">
 		<?php foreach($post_types as $post_type): ?>
 			<?php $selected =  in_array($post_type->name, $options['mrm_fl_post_types'])?'selected':''?>
@@ -63,15 +63,15 @@ function mrm_fl_post_types_render(  ) {
 	<?php
 }
 
-function mrm_fl_features_render(  ) { 
+function mrm_fl_features_render(  ) {
 
-	$activatedFeatures = MrmFeatureLoader::getActivatedFeatures();
-	$availableFeatures = MrmFeatureLoader::getAvailableFeatures();
+	$activatedFeatures = MrmFeatureLoader::getInstance()->getActivatedFeatures();
+	$availableFeatures = MrmFeatureLoader::getInstance()->getAvailableFeatures();
 
 	foreach($availableFeatures as $feature):?>
-		<input 
-			type="checkbox" 
-			name="mrm_fl_settings[mrm_fl_features][]" 
+		<input
+			type="checkbox"
+			name="mrm_fl_settings[mrm_fl_features][]"
 			value="<?php echo $feature['name'] ?>"
 			id="<?php echo $feature['name'] ?>"
 			<?php echo in_array($feature['name'], $activatedFeatures)?' checked':'' ?>
@@ -88,17 +88,17 @@ function mrm_fl_features_render(  ) {
 			}
 		}*/
 		?>
-		
+
 		<?php
 	endforeach;
 }
 
-function mrm_fl_settings_section_callback(  ) { 
+function mrm_fl_settings_section_callback(  ) {
 	/** Maybe put some js in here if you want */
 }
 
 
-function mrm_options_page(  ) { 
+function mrm_options_page(  ) {
 
 	?>
 	<form action='options.php' method='post'>
