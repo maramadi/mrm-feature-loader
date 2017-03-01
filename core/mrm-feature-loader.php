@@ -211,7 +211,7 @@ Class MrmFeatureLoader {
 
 			$featurePath = $avilableFeatures[$feature]['path'];
 
-			if( file_exists($featurePath) )
+			if( isset($featurePath) && file_exists($featurePath) )
 			{
 				require $featurePath;
 			}
