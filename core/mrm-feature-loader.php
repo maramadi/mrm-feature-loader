@@ -94,6 +94,11 @@ Class MrmFeatureLoader {
 
 			foreach ($features as $featureSlug => $featureData)
 			{
+				// Check if feature should show on page
+				if ( ! array_key_exists('active', $featureData) )
+				{
+					continue;
+				}
 				if( in_array($featureSlug, $activatedFeatures) )
 				{
 					// Get the feature object the featureSlug
@@ -151,7 +156,7 @@ Class MrmFeatureLoader {
 
 			<div class="mrm-features-metabox">
 				<?php wp_nonce_field( basename( __FILE__ ), 'mrm_fl_metabox_nonce' ); ?>
-				<?php if(self::canShow($slug, $object)): ?>
+				<?php if(self::canShowOnAdmin($slug, $object)): ?>
 					<?php echo MrmFeatureSettingsRenderer::render($feature, $object, $box) ?>
 				<?php endif; ?>
 			</div>
@@ -297,7 +302,7 @@ Class MrmFeatureLoader {
 		return in_array($feature, $features);
 	}
 
-	static function canShow($feature, $post)
+	static function canShowOnAdmin($feature, $post)
 	{
 
 		$activatedPostTypes =  MrmFeatureLoader::getInstance()->getActivatedPostTypes();
@@ -317,42 +322,5 @@ Class MrmFeatureLoader {
 	        //throw new \Exception('FeatureLoader has to be initialized with init() first');
 	    }
 	    return self::$_instance;
-	}
-
-
-	/**
-	 * Get data from the store
-	 * @param  string storeKey store key
-	 * @param  string value value to store
-	 * @return self
-	 */
-	public function setData($storeKey, $data)
-	{
-		$_instance = self::getInstance();
-		$_instance->store[$storeKey] = $data;
-		return $_instance;
-	}
-
-	/**
-	 * Get data from the store
-	 * @param  string $storeKey store key
-	 * @return mixed       	store value
-	 */
-	public function getData($storeKey = null)
-	{
-
-		$instance = self::getInstance();
-
-		if(is_null($storeKey)){
-			return $instance->store;
-		}
-
-		if(isset($instance->store[$storeKey]))
-		{
-			return $instance->store[$storeKey];
-		}
-
-		return '';
-
 	}
 }

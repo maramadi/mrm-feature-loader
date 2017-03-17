@@ -18,7 +18,13 @@ Abstract Class MrmFeature {
 
 	public function isActive()
 	{
-		return MrmFeatureLoader::canShow();
+		global $post;
+		ddd(get_post_meta($post));
+	}
+
+	public function canShowOnAdmin()
+	{
+		return MrmFeatureLoader::canShowOnAdmin();
 	}
 
 	public function getSettingsKey($settingsSlug)
