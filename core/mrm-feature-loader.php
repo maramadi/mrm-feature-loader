@@ -81,6 +81,11 @@ Class MrmFeatureLoader {
 	public static function prepareFeatureload()
 	{
 		global $post;
+
+		if ( ! $post )
+		{
+		    return;
+		}
 		$instance = self::getInstance();
 		/* The meta key. */
 		$meta_key = 'mrm_fl_features';
